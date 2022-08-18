@@ -15,7 +15,7 @@ var a = new Vue({
     },
     mounted(){
         var that = this;
-        axios.get("http://localhost:8080/get_all_order_main")
+        axios.get("http://192.168.3.26:8080/get_all_order_main")
                 .then(response => {
                     that.order_main = response.data.data
                     for (var i = 0; i < that.order_main.length; i++) {
