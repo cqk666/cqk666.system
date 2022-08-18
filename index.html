@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table {
+            border-right: 1px solid #000000;
+            border-bottom: 1px solid #000000;
+            text-align: center;
+        }
+
+        table th {
+            border-left: 1px solid #000000;
+            border-top: 1px solid #000000;
+        }
+
+        table td {
+            border-left: 1px solid #000000;
+            border-top: 1px solid #000000;
+        }
+    </style>
+</head>
+<body>
+<div id="form">
+    <div id="index_form">
+        <div>
+            <!-- <button>导出</button> -->
+            <input type="text" placeholder="请输入客户姓名" id="name">
+            <input type="text" placeholder="请输入工程地址" id="address">
+            <input type="text" id="hetong" placeholder="请输入合同号">
+            <input type="text" placeholder="输入订单备注" id="remark">
+            <button id="create_new" v-on:click="get_add_form">新建</button>
+            <!-- <button v-on:click="get_main">刷新</button> -->
+        </div>
+        <div>
+            <input type="text" placeholder="请输入合同单号或订单编号" id="search">
+            <input type="button" value="搜索" v-on:click="serach_by_hetong_or_n_id">
+            <label>起始时间</label><input type="date" id = "startTime_list">
+            <label>终止时间</label><input type="date" id = "endTime_list">
+            <input type="button" value="搜索" v-on:click="search_by_date_for_order">
+        </div>
+        <div style="height:550px;overflow:auto;">
+            <table>
+                <thead style="padding-right:17px;">
+                    <tr>
+                        <td style="width: 100px;">序号</td>
+                        <td style="width: 100px;">订单创建时间</td>
+                        <td style="width: 100px;">客户姓名</td>
+                        <td style="width: 100px;">合同号</td>
+                        <td style="width: 100px;">总数</td>
+                        <td style="width: 100px;">工程地址</td>
+                        <td style="width: 100px;">订单编号</td>
+                        <td style="width: 100px;">备注</td>
+                        <td style="width: 100px;">面积</td>
+                        <td style="width: 100px;">总金额</td>
+                        <td style="width: 100px;">付款进度</td>
+                        <td style="width: 100px;">操作</td>
+                        <td style="width: 100px;">付款进度修改</td>
+                    </tr>
+                </thead>
+                <tbody style="overflow-y:scroll;overflow-x: auto;">
+                    <tr  v-for="(orders,index) in order_main":title="orders">
+                        <td style="width: 100px;">{{index+1}}</td>
+                        <td style="width: 200px;">{{orders.date}}</td>
+                        <td style="width: 100px;">{{orders.name}}</td>
+                        <td style="width: 100px;">{{orders.hetong}}</td>
+                        <td style="width: 100px;">{{orders.count}}</td>
+                        <td style="width: 200px;">{{orders.address}}</td>
+                        <td style="width: 200px;">{{orders.n_id}}</td>
+                        <td style="width: 100px;">{{orders.remark}}</td>
+                        <td style="width: 100px;">{{orders.area}}</td>
+                        <td style="width: 100px;">{{orders.total}}</td>
+                        <td style="width: 100px;">{{orders.status}}</td>
+                        <td style="width: 100px;">
+                            <p style="display:inline-block;" v-on:click="get_detail(orders.name,orders.address,orders.n_id,orders.remark)">查看</p>
+                            <p style="display:inline-block;" v-on:click="delete_order(orders.n_id)">删除</p>
+                        </td>
+                        <td style="width: 300px;"><button id="have_pay" v-on:click="have_pay(orders.n_id)">已付款</button><button id="no_pay" v-on:click="no_pay(orders.n_id)">未付款</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <p style="width: 100px;display:inline-block;margin-left: 1000px;">总金额</p><p style="width: 100px;display:inline-block;color: red;">{{total_money}}</p>
+            <p style="width: 100px;display:inline-block">总数量</p><p style="width: 100px;display:inline-block;color: red;">{{total_number}}</p>
+            <p style="width: 100px;display:inline-block">总面积</p><p style="width: 100px;display:inline-block;color: red;">{{total_area}}</p>
+        </div>
+    </div>
+    <div style="display:none;" id="add_form">
+        <div>
+            <input type="text" id="width"placeholder="请输入宽" style="width:60px;">
+            <input type="text" id="height"placeholder="请输入高" style="width:60px;">
+            <select style="height:21px;" id="number">
+                <option>选择数量</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+            <input type="text" id="price"placeholder="请输入单价" style="width:70px;">
+            <input type="text" id="material"placeholder="请输入基材" style="width:70px;">
+            <select style="height:21px;" id="color">
+                <option>选择颜色</option>
+                <option value="PET-005">PET-005</option>
+                <option>示例1</option>
+            </select>
+            <input type="text" id="door_style"placeholder="请输入门型" style="width:70px;">
+            <select style="height:21px;" id="open_style">
+                <option>选择开向</option>
+                <option value="对开">对开</option>
+                <option value="左开">左开</option>
+                <option value="右开">右开</option>
+                <option value="抽屉">抽屉</option>
+                <option value="不开孔">不开孔</option>
+            </select>
+            <select style="height:21px;" id="hand">
+                <option>选择拉手</option>
+                <option value="示例1">示例1</option>
+            </select>
+            <select style="height:21px;" id="site">
+                <option>选择位称</option>
+                <option value="示例1">示例1</option>
+            </select>
+            <input type="button" value="提交" v-on:click="create_new_order">
+            <button type="button" v-on:click="go_index">返回主页面</button>
+            <button v-on:click="get_detail(name,address,n_id,remark)">刷新</button>
+        </div>
+        <div>
+            <p style="width: 100px;display:inline-block">客户名称</p>
+            <p style="width: 100px;display:inline-block">{{name}}</p>
+            <p style="width: 100px;display:inline-block">订单编号</p>
+            <p style="width: 200px;display:inline-block">{{n_id}}</p>
+            <p style="width: 100px;display:inline-block">客户地址</p>
+            <p style="width: 200px;display:inline-block">{{address}}</p>
+            <p style="width: 100px;display:inline-block">订单备注</p>
+            <p style="width: 100px;display:inline-block">{{remark}}</p>
+            <div style="height:350px;overflow:auto;">
+                <table  style="overflow-y:scroll;overflow-x: auto;">
+                    <thead>
+                    <tr>
+                        <td style="width: 100px;">序号</td>
+                        <td style="width: 100px;">基材</td>
+                        <td style="width: 100px;">颜色</td>
+                        <td style="width: 100px;">门型</td>
+                        <td style="width: 100px;">宽</td>
+                        <td style="width: 100px;">高</td>
+                        <td style="width: 100px;">数量</td>
+                        <td style="width: 100px;">面积</td>
+                        <td style="width: 100px;">单价</td>
+                        <td style="width: 100px;">金额</td>
+                        <td style="width: 100px;">孔向</td>
+                        <td style="width: 100px;">拉手</td>
+                        <td style="width: 100px;">位称</td>
+                        <td style="width: 100px;">操作</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(orders,index) in order_detail":title="orders">
+                        <td style="width: 100px;">{{index+1}}</td>
+                        <td style="width: 100px;">{{orders.material}}</td>
+                        <td style="width: 100px;">{{orders.color}}</td>
+                        <td style="width: 100px;">{{orders.door_style}}</td>
+                        <td style="width: 100px;">{{orders.width}}</td>
+                        <td style="width: 100px;">{{orders.width}}</td>
+                        <td style="width: 100px;">{{orders.number}}</td>
+                        <td style="width: 100px;">{{orders.area}}</td>
+                        <td style="width: 100px;">{{orders.price}}</td>
+                        <td style="width: 100px;">{{orders.total}}</td>
+                        <td style="width: 100px;">{{orders.open_direction}}</td>
+                        <td style="width: 100px;">{{orders.hand}}</td>
+                        <td style="width: 100px;">{{orders.site}}</td>
+                        <!-- <td style="width: 100px;"></td> -->
+                        <!-- <td style="width: 100px;">{{orders.date}}</td> -->
+                        <td style="width: 100px;">修改 删除</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="./js/index.js"></script>
+</html>
